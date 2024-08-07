@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Biblioteca</title>
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+            }
+            .container {
+                max-width: 800px;
+                margin: 2rem auto;
+                padding: 2rem;
+                background: #fff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 1.5rem;
+            }
+            .form-container {
+                max-width: 500px;
+                margin: 0 auto;
+                padding: 2rem;
+                background-color: #f7f7f7;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+                display: flex;
+                flex-direction: column;
+            }
+            .form-group label {
+                font-size: 1rem;
+                color: #333;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+            .form-group input {
+                width: calc(100% - 1.8rem); 
+                margin: 0.5rem 0;
+                padding: 0.75rem;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                background-color: #fff;
+                font-size: 1rem;
+                transition: border-color 0.3s ease;
+            }
+            .form-group input:focus {
+                border-color: #28a745;
+                outline: none;
+            }
+            .form-group button {
+                display: block;
+                width: calc(100% - .2rem);
+                margin: 0.5rem 0;
+                padding: 0.75rem;
+                border: none;
+                border-radius: 6px;
+                background-color: #28a745;
+                color: #fff;
+                font-size: 1.1rem;
+                cursor: pointer;
+                transition: background-color 0.3s ease, transform 0.3s ease;
+            }
+            .form-group button:hover {
+                background-color: #218838;
+                transform: scale(1.02);
+            }
+            .form-group .error,
+            .form-group .success {
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+                padding: 0.5rem;
+                border-radius: 4px;
+            }
+            .form-group .error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            .form-group .success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .card-container {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            .card {
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+                width: 30%;
+                margin-left: 1.7%;
+                box-sizing: border-box;
+            }
+            .message {
+                padding: 1rem;
+                border-radius: 4px;
+                margin-top: 1rem;
+                display: none;
+            }
+            .message.error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            .message.success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            #autores h1, #libros h1 {
+            display: block; 
+            color: black;
+            font-size: 2em;
+            }
+        .message {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .paginacion {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .paginacion button {
+            margin: 0 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .paginacion button:hover {
+            background-color: #a39999;
+        }
+        .paginacion .activo {
+            background-color: #218838;
+            color: white;
+            border-color: #218838;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Libreria Softie</h1>
+    <!--LISTAS PRINCIPALES-->
+    <div class="lista">
+        <h1>Autores</h1>
+        <div id="contenedor-autores" class="card-container">    </div>
+        <div id="paginacion-autores" class="paginacion">    </div>
+    </div>
+    <div class="lista">
+        <h1>Libros</h1>
+        <div id="contenedor-libros" class="card-container">    </div>
+        <div id="paginacion-libros" class="paginacion"></div>
+    </div>
+        <!--BUSCAR AUTOR-->
+        <form id="searchAuthorForm" onsubmit="event.preventDefault(); searchAuthor();">
+            <h2>Buscar Autor</h2>
+            <div class="form-group">
+                <label for="busquedanombre">Nombre del Autor:</label>
+                <input type="text" id="busquedanombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="searchAuthor()">Buscar Autor</button>
+            </div>
+            <h1>Autores</h1>
+        </form>
+        <div id="autores" class="card-container"></div>
+        <div id="message" style="display:none;"></div>
+        <!-- BUSCAR LIBRO -->
+        <form id="searchBookForm">
+            <h2>Buscar Libro</h2>
+            <div class="form-group">
+                <label for="busquedatitulo">Título del Libro:</label>
+                <input type="text" id="busquedatitulo" name="titulo" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="searchBook()">Buscar Libro</button>
+            </div>
+            <h1>Títulos</h1>
+        </form>
+        <div id="libros" class="card-container">
+        </div>
+        <!--INSERTAR LIBRO Y AUTOR-->
+        <form action="/validar" method="post">
+            <div class="form-group" id="formulario">
+                <h2>Registro de Autor</h2>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" required>
+                
+                <label for="fechaNac">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNac" name="fechaNac" required>
+            </div>
+            <div class="form-group">
+                <h2>Registro de Libro</h2>
+                <label for="titulo">Título:</label>
+                <input type="text" id="titulo" name="titulo" required>
+                
+                <label for="fechaP">Fecha de Publicación:</label>
+                <input type="date" id="fechaP" name="fechaP" required>
+                
+                <label for="Precio">Precio:</label>
+                <input type="number" id="Precio" name="Precio" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Registrar</button>
+            </div>
+        </form>
+        <!--ACTUALIZAR AUTOR-->
+        <form id="formularioActualizar" action="/actualizarAutor" method="post">
+            <h2>Actualizar Autor</h2>
+            <div class="form-group">
+                <label for="idAutor">ID Autor:</label>
+                <input type="number" id="idAutor" name="idAutor" required>
+                <button type="button" onclick="obtenerDatosAutor()">Buscar Autor</button>
+                
+                <label for="nombreActualizar">Nuevo Nombre:</label>
+                <input type="text" id="nombreActualizar" name="nombreActualizar" required>
+                
+                <label for="apellidoActualizar">Nuevo Apellido:</label>
+                <input type="text" id="apellidoActualizar" name="apellidoActualizar" required>
+                
+                <label for="fechaNacActualizar">Nueva Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacActualizar" name="fechaNacActualizar" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Actualizar Autor</button>
+            </div>
+        </form>
+        <!--ACTUALIZAR LIBRO-->
+        <form action="/actualizarLibro" method="post">
+            <h2>Actualizar Libro</h2>
+            <div class="form-group">
+                <label for="idLibro">ID Libro:</label>
+                <input type="number" id="idLibro" name="idLibro" required>
+                <button type="button" onclick="obtenerDatosLibro()">Buscar Libro</button>
+                
+                <label for="tituloActualizar">Nuevo Título:</label>
+                <input type="text" id="tituloActualizar" name="tituloActualizar" required>
+                
+                <label for="fechaPActualizar">Nueva Fecha de Publicación:</label>
+                <input type="date" id="fechaPActualizar" name="fechaPActualizar" required>
+                
+                <label for="precioActualizar">Nuevo Precio:</label>
+                <input type="number" id="precioActualizar" name="precioActualizar" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Actualizar Libro</button>
+            </div>
+        </form>
+        <!-- ELIMINAR AUTOR -->
+        <form action="/eliminarAutor" method="post">
+            <h2>Eliminar Autor</h2>
+            <div class="form-group">
+                <label for="idAutorEliminar">ID Autor:</label>
+                <input type="number" id="idAutorEliminar" name="idAutorEliminar" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Eliminar Autor</button>
+            </div>
+        </form>
+        <!-- ELIMINAR LIBRO -->
+        <form action="/eliminarLibro" method="post">
+            <h2>Eliminar Libro</h2>
+            <div class="form-group">
+                <label for="idLibroEliminar">ID Libro:</label>
+                <input type="number" id="idLibroEliminar" name="idLibroEliminar" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Eliminar Libro</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+    <script> 
+// ALERT INSERTAR 
+document.getElementById('formulario').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    fetch('/validar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
+        alert(text);
+    })
+    .catch(error => {
+        alert(`Error en la solicitud: ${error.message}`);
+    });
+});
+// ALERT ACTUALIZAR
+document.getElementById('formularioActualizar').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    fetch('/actualizarAutor', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
+        alert(text);
+    })
+    .catch(error => {
+        alert(`Error en la solicitud: ${error.message}`);
+    });
+});
+// MOSTRAR LISTAS
+async function listaautores(pagina = 1) {
+    try {
+        const autoresResponse = await fetch('/autores');
+        const autores = await autoresResponse.json();
+        const elementosPorPagina = 9;
+        const totalPaginas = Math.ceil(autores.length / elementosPorPagina);
+        const inicio = (pagina - 1) * elementosPorPagina;
+        const fin = inicio + elementosPorPagina;
+        const autoresPagina = autores.slice(inicio, fin);
+        const autoresContainer = document.getElementById('contenedor-autores');
+        autoresContainer.innerHTML = autoresPagina.map(autor => `
+            <div class="card">
+                <h3>${autor.Nombre}</h3>
+                <h3>${autor.Apellido}</h3>
+                <p>Fecha de Nacimiento: ${new Date(autor.Fecha_Nacimiento).toLocaleDateString()}</p>
+                <p>Autor ID: ${autor.id_Autores}</p>
+            </div>
+        `).join('');
+        const paginacionContainer = document.getElementById('paginacion-autores');
+        paginacionContainer.innerHTML = Array.from({ length: totalPaginas }, (_, index) => `
+            <button class="${pagina === index + 1 ? 'activo' : ''}" onclick="listaautores(${index + 1})">${index + 1}</button>
+        `).join('');
+    } catch (error) {
+        console.error("Error al obtener datos de autores:", error);
+    }
+}
+// PAGINACION
+async function listalibros(pagina = 1) {
+    try {
+        const librosResponse = await fetch('/libros');
+        const libros = await librosResponse.json();
+        const elementosPorPagina = 9;
+        const totalPaginas = Math.ceil(libros.length / elementosPorPagina);
+        const inicio = (pagina - 1) * elementosPorPagina;
+        const fin = inicio + elementosPorPagina;
+        const librosPagina = libros.slice(inicio, fin);
+        // Mostrar libros
+        const librosContainer = document.getElementById('contenedor-libros');
+        librosContainer.innerHTML = librosPagina.map(libro => `
+            <div class="card">
+                <h3>${libro.titulo}</h3>
+                <p>Fecha de Publicación: ${new Date(libro.Fecha_Publicacion).toLocaleDateString()}</p>
+                <p>Precio: ${libro.Precio}</p>
+                <p>Autor ID: ${libro.id_Autores}</p>
+                <p>Libro ID: ${libro.id_Libro}</p>
+            </div>
+        `).join('');
+        // Controles
+        const paginacionContainer = document.getElementById('paginacion-libros');
+        paginacionContainer.innerHTML = Array.from({ length: totalPaginas }, (_, index) => `
+            <button class="${pagina === index + 1 ? 'activo' : ''}" onclick="listalibros(${index + 1})">${index + 1}</button>
+        `).join('');
+    } catch (error) {
+        console.error("Error al obtener datos de libros:", error);
+    }
+}
+// CARGAR DATOS DE PÁGINA
+document.addEventListener('DOMContentLoaded', function() {
+    listaautores();
+    listalibros();
+});
+// MENSAJE ELIMINAR LIBRO
+document.getElementById('eliminarLibroForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Evita el envío del formulario por defecto
+    const idLibro = document.getElementById('idLibroEliminar').value;
+    fetch('/eliminarLibro', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idLibroEliminar: idLibro }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            alert(data.mensaje);
+        }
+    })
+    .catch(error => {
+        alert('Error en la solicitud: ' + error.message);
+    });
+});
+// MENSAJE INSERTAR
+document.getElementById('registroForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/validar', {
+        method: 'POST',
+        body: JSON.stringify({
+            nombre: formData.get('nombre'),
+            apellido: formData.get('apellido'),
+            fechaNac: formData.get('fechaNac'),
+            titulo: formData.get('titulo'),
+            fechaP: formData.get('fechaP'),
+            Precio: formData.get('Precio')
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else if (data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al procesar la solicitud');
+    });
+});
+// OBTENER DATOS ACTUALIZAR AUTOR
+function obtenerDatosAutor() {
+    const idAutor = document.getElementById('idAutor').value;
+    if (!idAutor) {
+        alert('Por favor ingrese un ID de Autor.');
+        return;
+    }
+    fetch(`/obtenerAutor/${idAutor}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Autor no encontrado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('nombreActualizar').value = data.Nombre || '';
+            document.getElementById('apellidoActualizar').value = data.Apellido || '';
+            document.getElementById('fechaNacActualizar').value = new Date(data.Fecha_Nacimiento).toISOString().split('T')[0] || '';
+        })
+        .catch(error => {
+            console.error('Error al obtener los datos del autor:', error);
+            alert('Error al obtener los datos del autor: ' + error.message);
+        });
+}
+// ACTUALIZAR LIBRO
+function obtenerDatosLibro() {
+    const idLibro = document.getElementById('idLibro').value;
+    if (!idLibro) {
+        alert('Por favor ingrese un ID de Libro.');
+        return;
+    }
+    fetch(`/obtenerLibro/${idLibro}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Libro no encontrado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('tituloActualizar').value = data.titulo;
+            document.getElementById('fechaPActualizar').value = new Date(data.Fecha_Publicacion).toISOString().split('T')[0];
+            document.getElementById('precioActualizar').value = data.Precio;
+        })
+        .catch(error => {
+            console.error('Error al obtener los datos del libro:', error);
+            alert('Error al obtener los datos del libro: ' + error.message);
+        });
+}
+// OBTENER DATOS
+async function fetchAndDisplayData() {
+    try {
+        //Autores
+        const autoresResponse = await fetch('/autores');
+        const autores = await autoresResponse.json();
+        //Libros
+        const librosResponse = await fetch('/libros');
+        const libros = await librosResponse.json();
+        //Mostrar autores
+        const autoresContainer = document.getElementById('autores');
+        autoresContainer.innerHTML = autores.map(autor => `
+            <div class="card">
+                <h3>${autor.Nombre}</h3>
+                <h3>${autor.Apellido}</h3>
+                <p>Fecha de Nacimiento: ${new Date(autor.Fecha_Nacimiento).toLocaleDateString()}</p>
+                <p>Autor ID: ${autor.id_Autores}</p>
+            </div>`).join('');
+                // Mostrar libros
+                const librosContainer = document.getElementById('libros');
+                librosContainer.innerHTML = libros.map(libro => `
+                    <div class="card">
+                        <h3>${libro.titulo}</h3>
+                        <p>Fecha de Publicación: ${new Date(libro.Fecha_Publicacion).toLocaleDateString()}</p>
+                        <p>Precio: ${libro.Precio}</p>
+                        <p>Autor ID: ${libro.id_Autores}</p>
+                        <p>Libro ID: ${libro.id_Libro}</p>
+                    </div>
+                `).join('');
+            } 
+    catch (error) {   console.error("Error al obtener datos:", error);    }   }
+// MOSTRAR EN CONTENEDOR
+function displayResults(data, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = ''; 
+    data.forEach(author => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+        <h3>Nombre: ${autor.Nombre}</h3>
+            <p>Apellido: ${autor.Apellido}</p>
+            <p>Fecha de Nacimiento: ${autor.FechaNacimiento}</p>
+            <p>ID: ${autor.ID}</p>
+        `;
+        container.appendChild(card);
+    });
+}
+// BUSCAR AUTOR    
+function searchAuthor() {
+const nombre = document.getElementById('busquedanombre').value;
+if (!nombre) {
+    alert('Por favor ingrese un nombre.');
+    return;
+}
+fetch(`/buscarAutor?nombre=${nombre}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la búsqueda del autor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const autoresDiv = document.getElementById('autores');
+        if (data.length === 0) {
+            alert('No se encontraron autores.');
+        } else {
+            autoresDiv.innerHTML = '';
+            data.forEach(autor => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${autor.Nombre} ${autor.Apellido}</h3>
+                    <p>Fecha de Nacimiento: ${new Date(autor.Fecha_Nacimiento).toLocaleDateString()}</p>
+                    <p>ID:${autor.id_Autores}</p>
+                `;
+                autoresDiv.appendChild(card);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error al buscar autor:', error);
+        alert('Error al buscar autor: ' + error.message);
+    });
+}
+// BUSCAR LIBRO
+async function searchBook() {
+    const titulo = document.getElementById('busquedatitulo').value;
+    if (!titulo) {
+    alert("Por favor, ingrese un título para buscar.");
+    return;
+    }
+    try {
+        const response = await fetch(`/buscarLibro?titulo=${titulo}`);
+        const data = await response.json();
+        if (response.ok) {
+            if (data.length === 0) {
+                alert("No se encontraron resultados para la búsqueda.");
+            } else {
+                displayResults(data, 'libros');
+            }
+        } else {
+            alert(data.error || "Error en la búsqueda del libro");
+        }
+    } catch (error) {
+        alert("Error en la búsqueda del libro");
+    }
+    
+}
+//MOSTRAR EN CONTENEDOR
+function displayResults(data, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = data.map(item => `
+        <div class="card">
+            <h3>${item.Nombre || item.Apellido || item.titulo}</h3>
+            <p>Fecha: ${new Date(item.Fecha_Nacimiento || item.Fecha_Publicacion).toLocaleDateString()}</p>
+            <p>${item.Precio ? 'Precio: ' + item.Precio : ''}</p>
+            <p>${item.id_Autores ? 'Autor ID: ' + item.id_Autores : ''}</p>
+            <p>${item.id_Libro ? 'Libro ID:' + item.id_Libro :''}</p>
+        </div>
+    `).join('');    }
+document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+    </script>
+</html>
