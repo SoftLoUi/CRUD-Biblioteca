@@ -1,5 +1,5 @@
 # CRUD-Biblioteca
-### Descripción
+## Descripción
 Este proyecto es una aplicación web CRUD para gestionar una biblioteca.
 Las herramientas utilizadas para su desarrollo son:
 `Node.js` para el servidor
@@ -11,19 +11,6 @@ Las herramientas utilizadas para su desarrollo son:
 - Node.js 
 - NPM 
 - MySQL 
-
-let conexion = mysql.createConnection({
-    host: "localhost",
-    database: "Libreria",
-    user: "root",
-    password: "1234567890"
-});
-     ``` 
-    host: "localhost",
-    database: "db_name",
-    user: "user",
-    password: "password"
-    ```
 
 ## Funcionalidades
 1. Insertar Libros y Autores a la base de datos
